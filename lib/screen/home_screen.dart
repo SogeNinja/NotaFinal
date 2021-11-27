@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:notafinal/script/contador_screen.dart';
+
+import 'package:notafinal/screen/contador_screen.dart';
+import 'package:notafinal/screen/message.dart';
+import 'package:notafinal/services/key_shar.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -23,6 +26,12 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  final GlobalKey<NavigatorState> navagacionKey =
+      new GlobalKey<NavigatorState>();
+
+  final GlobalKey<ScaffoldMessengerState> messageKey =
+      new GlobalKey<ScaffoldMessengerState>();
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
@@ -31,7 +40,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       'Bienvenido',
       style: optionStyle,
     ),
-    ContadorPage(),
+    ContadorPage(), //contador
+    //MessageScreen() //message
   ];
 
   void _onItemTapped(int index) {
@@ -41,6 +51,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    PushNotificationService.streamMessageController.listen((message) {
+      print('El mensaje de la app: $message');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MessageScreen()),
+      );
+
+      final snackBar = SnackBar(content: Text(message));
+      messageKey.currentState?.showSnackBar(snackBar);
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -59,6 +84,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             icon: Icon(Icons.countertops),
             label: 'Contador',
           ),
+          /*
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Mensaje',
+          ),*/
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
